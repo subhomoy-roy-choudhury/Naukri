@@ -13,7 +13,7 @@ In order to use this, you need to have Python 3, Google Chrome and Selenium webd
 
 ## Installation
 
-Install [Python 3](https://www.python.org/getit/) and run the below commands
+Install [Python 3.10+](https://www.python.org/getit/) and run the below commands
 
 ```bash
 git clone https://github.com/navchandar/Naukri.git
