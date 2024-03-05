@@ -14,7 +14,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
-from PyPDF2 import PdfFileReader, PdfFileWriter
+from pypdf import PdfReader, PdfWriter
 from string import ascii_uppercase, digits
 from random import choice, randint
 from datetime import datetime
@@ -75,7 +75,7 @@ def getObj(locatorType):
         "CSS" : By.CSS_SELECTOR,
         "LINKTEXT" : By.LINK_TEXT
     }
-    return map[locatorType]
+    return map[locatorType.upper()]
 
 
 def GetElement(driver, elementTag, locator="ID"):
@@ -308,19 +308,19 @@ def UpdateResume():
         can.save()
 
         packet.seek(0)
-        new_pdf = PdfFileReader(packet)
-        existing_pdf = PdfFileReader(open(originalResumePath, "rb"))
-        pagecount = existing_pdf.getNumPages()
+        new_pdf = PdfReader(packet)
+        existing_pdf = PdfReader(open(originalResumePath, "rb"))
+        pagecount = len(existing_pdf.pages)
         print("Found %s pages in PDF" % pagecount)
 
-        output = PdfFileWriter()
+        output = PdfWriter()
         # Merging new pdf with last page of my existing pdf
         # Updated to get last page for pdf files with varying page count
         for pageNum in range(pagecount - 1):
-            output.addPage(existing_pdf.getPage(pageNum))
+            output.addPage(existing_pdf.get_page_number(pageNum))
 
-        page = existing_pdf.getPage(pagecount - 1)
-        page.mergePage(new_pdf.getPage(0))
+        page = existing_pdf.get_page_number(pagecount - 1)
+        page.mergePage(new_pdf.get_page_number(0))
         output.addPage(page)
         # save the new resume file
         with open(modifiedResumePath, "wb") as outputStream:
