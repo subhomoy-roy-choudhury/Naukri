@@ -19,6 +19,8 @@ Install [Python 3.10+](https://www.python.org/getit/) and run the below commands
 git clone https://github.com/navchandar/Naukri.git
 cd Naukri
 pip install --upgrade pip
+python3 -m venv .venv      # create virtual environment for installing dependencies
+./.venv/bin/activate.ps1   # or source ./.venv/bin/activate for macOS/linux
 pip install -r requirements.txt
 ```
 
@@ -32,7 +34,7 @@ python naukri.py
 
 | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Chrome |
 | --------- |
-| last 20 versions
+| last 10 versions
 
 
 ## Contribute

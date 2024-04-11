@@ -2,26 +2,25 @@
 # -*- coding: utf-8 -*-
 """Naukri Daily update - Using Chrome"""
 
-import re
-import os
 import io
+import logging
+import os
 import sys
 import time
-import logging
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import NoAlertPresentException
-from pypdf import PdfReader, PdfWriter
-from string import ascii_uppercase, digits
-from random import choice, randint
 from datetime import datetime
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from webdriver_manager.chrome import ChromeDriverManager as CM
+from random import choice, randint
+from string import ascii_uppercase, digits
 
+from pypdf import PdfReader, PdfWriter
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager as CM
 
 # Add folder Path of your resume
 originalResumePath = "original_resume.pdf"
@@ -45,7 +44,7 @@ logging.basicConfig(
     level=logging.INFO, filename="naukri.log", format="%(asctime)s    : %(message)s"
 )
 # logging.disable(logging.CRITICAL)
-os.environ['WDM_LOCAL'] = "1"
+os.environ["WDM_LOCAL"] = "1"
 os.environ["WDM_LOG_LEVEL"] = "0"
 
 
@@ -57,7 +56,7 @@ def log_msg(message):
 
 def catch(error):
     """Method to catch errors and log error details"""
-    exc_type, exc_obj, exc_tb = sys.exc_info()
+    _, _, exc_tb = sys.exc_info()
     lineNo = str(exc_tb.tb_lineno)
     msg = "%s : %s at Line %s." % (type(error), error, lineNo)
     print(msg)
@@ -67,13 +66,13 @@ def catch(error):
 def getObj(locatorType):
     """This map defines how elements are identified"""
     map = {
-        "ID" : By.ID,
-        "NAME" : By.NAME,
-        "XPATH" : By.XPATH,
-        "TAG" : By.TAG_NAME,
-        "CLASS" : By.CLASS_NAME,
-        "CSS" : By.CSS_SELECTOR,
-        "LINKTEXT" : By.LINK_TEXT
+        "ID": By.ID,
+        "NAME": By.NAME,
+        "XPATH": By.XPATH,
+        "TAG": By.TAG_NAME,
+        "CLASS": By.CLASS_NAME,
+        "CSS": By.CSS_SELECTOR,
+        "LINKTEXT": By.LINK_TEXT,
     }
     return map[locatorType.upper()]
 
@@ -81,11 +80,13 @@ def getObj(locatorType):
 def GetElement(driver, elementTag, locator="ID"):
     """Wait max 15 secs for element and then select when it is available"""
     try:
+
         def _get_element(_tag, _locator):
             _by = getObj(_locator)
             if is_element_present(driver, _by, _tag):
                 return WebDriverWait(driver, 15).until(
-                    lambda d: driver.find_element(_by, _tag))
+                    lambda d: driver.find_element(_by, _tag)
+                )
 
         element = _get_element(elementTag, locator.upper())
         if element:
@@ -113,14 +114,14 @@ def WaitTillElementPresent(driver, elementTag, locator="ID", timeout=30):
     driver.implicitly_wait(0)
     locator = locator.upper()
 
-    for i in range(timeout):
+    for _ in range(timeout):
         time.sleep(0.99)
         try:
             if is_element_present(driver, getObj(locator), elementTag):
                 result = True
                 break
         except Exception as e:
-            log_msg('Exception when WaitTillElementPresent : %s' %e)
+            log_msg("Exception when WaitTillElementPresent : %s" % e)
             pass
 
     if not result:
@@ -163,9 +164,9 @@ def LoadNaukri(headless):
     # updated to use ChromeDriverManager to match correct chromedriver automatically
     driver = None
     try:
-        driver = webdriver.Chrome(executable_path=CM().install(), options=options)
+        driver = webdriver.Chrome(options, service=ChromeService(CM().install()))
     except:
-        driver = webdriver.Chrome(options=options)
+        driver = webdriver.Chrome(options)
     log_msg("Google Chrome Launched!")
 
     driver.implicitly_wait(3)
@@ -173,10 +174,14 @@ def LoadNaukri(headless):
     return driver
 
 
-def naukriLogin(headless = False):
-    """ Open Chrome browser and Login to Naukri.com"""
+def naukriLogin(headless=False):
+    """Open Chrome browser and Login to Naukri.com"""
     status = False
     driver = None
+    username_locator = "usernameField"
+    password_locator = "passwordField"
+    login_btn_locator = "//*[@type='submit' and normalize-space()='Login']"
+    skip_locator = "//*[text() = 'SKIP AND CONTINUE']"
 
     try:
         driver = LoadNaukri(headless)
@@ -185,22 +190,12 @@ def naukriLogin(headless = False):
             log_msg("Website Loaded Successfully.")
 
         emailFieldElement = None
-        if is_element_present(driver, By.ID, "emailTxt"):
-            emailFieldElement = GetElement(driver, "emailTxt", locator="ID")
+        if is_element_present(driver, By.ID, username_locator):
+            emailFieldElement = GetElement(driver, username_locator, locator="ID")
             time.sleep(1)
-            passFieldElement = GetElement(driver, "pwd1", locator="ID")
+            passFieldElement = GetElement(driver, password_locator, locator="ID")
             time.sleep(1)
-            loginXpath = "//*[@type='submit' and @value='Login']"
-            loginButton = GetElement(driver, loginXpath, locator="XPATH")
-
-        elif is_element_present(driver, By.ID, "usernameField"):
-            emailFieldElement = GetElement(driver, "usernameField", locator="ID")
-            time.sleep(1)
-            passFieldElement = GetElement(driver, "passwordField", locator="ID")
-            time.sleep(1)
-            loginXpath = '//*[@type="submit"]'
-            loginButton = GetElement(driver, loginXpath, locator="XPATH")
-
+            loginButton = GetElement(driver, login_btn_locator, locator="XPATH")
         else:
             log_msg("None of the elements found to login.")
 
@@ -216,13 +211,13 @@ def naukriLogin(headless = False):
 
             # Added click to Skip button
             print("Checking Skip button")
-            skipAdXpath = "//*[text() = 'SKIP AND CONTINUE']"
-            if WaitTillElementPresent(driver, skipAdXpath, locator="XPATH", timeout=10):
-                GetElement(driver, skipAdXpath, locator="XPATH").click()
+
+            if WaitTillElementPresent(driver, skip_locator, "XPATH", 10):
+                GetElement(driver, skip_locator, "XPATH").click()
 
             # CheckPoint to verify login
-            if WaitTillElementPresent(driver, "search-jobs", locator="ID", timeout=40):
-                CheckPoint = GetElement(driver, "search-jobs", locator="ID")
+            if WaitTillElementPresent(driver, "ff-inventory", locator="ID", timeout=40):
+                CheckPoint = GetElement(driver, "ff-inventory", locator="ID")
                 if CheckPoint:
                     log_msg("Naukri Login Successful")
                     status = True
@@ -242,18 +237,24 @@ def naukriLogin(headless = False):
 def UpdateProfile(driver):
     try:
         mobXpath = "//*[@name='mobile'] | //*[@id='mob_number']"
-        profeditXpath = "//a[contains(text(), 'UPDATE PROFILE')] | //a[contains(text(), ' Snapshot')] | //a[contains(@href, 'profile') and contains(@href, 'home')]"
         saveXpath = "//button[@ type='submit'][@value='Save Changes'] | //*[@id='saveBasicDetailsBtn']"
-        editXpath = "//em[text()='Edit']"
+        view_profile_locator = "//*[contains(@class, 'view-profile')]//a"
+        edit_locator = "(//*[contains(@class, 'icon edit')])[1]"
+        save_confirm = "//*[text()='today' or text()='Today']"
+        close_locator = "//*[contains(@class, 'crossIcon')]"
 
-        WaitTillElementPresent(driver, profeditXpath, "XPATH", 20)
-        profElement = GetElement(driver, profeditXpath, locator="XPATH")
+        WaitTillElementPresent(driver, view_profile_locator, "XPATH", 20)
+        profElement = GetElement(driver, view_profile_locator, locator="XPATH")
         profElement.click()
         driver.implicitly_wait(2)
 
-        WaitTillElementPresent(driver, editXpath + " | " + saveXpath, "XPATH", 20)
-        if is_element_present(driver, By.XPATH, editXpath):
-            editElement = GetElement(driver, editXpath, locator="XPATH")
+        if WaitTillElementPresent(driver, close_locator, "XPATH", 10):
+            GetElement(driver, close_locator, locator="XPATH").click()
+            time.sleep(2)
+
+        WaitTillElementPresent(driver, edit_locator + " | " + saveXpath, "XPATH", 20)
+        if is_element_present(driver, By.XPATH, edit_locator):
+            editElement = GetElement(driver, edit_locator, locator="XPATH")
             editElement.click()
 
             WaitTillElementPresent(driver, mobXpath, "XPATH", 20)
@@ -266,8 +267,8 @@ def UpdateProfile(driver):
             saveFieldElement.send_keys(Keys.ENTER)
             driver.implicitly_wait(3)
 
-            WaitTillElementPresent(driver, "//*[text()='today']", "XPATH", 10)
-            if is_element_present(driver, By.XPATH, "//*[text()='today']"):
+            WaitTillElementPresent(driver, save_confirm, "XPATH", 10)
+            if is_element_present(driver, By.XPATH, save_confirm):
                 log_msg("Profile Update Successful")
             else:
                 log_msg("Profile Update Failed")
@@ -298,8 +299,8 @@ def UpdateResume():
     try:
         # random text with with random location and size
         txt = randomText()
-        xloc = random.randint(700, 1000)  # this ensures that text is 'out of page'
-        fsize = random.randint(1, 10)
+        xloc = randint(700, 1000)  # this ensures that text is 'out of page'
+        fsize = randint(1, 10)
 
         packet = io.BytesIO()
         can = canvas.Canvas(packet, pagesize=letter)
@@ -337,8 +338,15 @@ def UploadResume(driver, resumePath):
         attachCVID = "attachCV"
         CheckPointXpath = "//*[contains(@class, 'updateOn')]"
         saveXpath = "//button[@type='button']"
+        close_locator = "//*[contains(@class, 'crossIcon')]"
 
         driver.get("https://www.naukri.com/mnjuser/profile")
+
+        time.sleep(2)
+        if WaitTillElementPresent(driver, close_locator, "XPATH", 10):
+            GetElement(driver, close_locator, locator="XPATH").click()
+            time.sleep(2)
+
         WaitTillElementPresent(driver, attachCVID, locator="ID", timeout=10)
         AttachElement = GetElement(driver, attachCVID, locator="ID")
         AttachElement.send_keys(resumePath)
