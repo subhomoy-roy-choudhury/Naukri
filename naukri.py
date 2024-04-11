@@ -21,6 +21,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager as CM
+from selenium.webdriver.chrome.options import Options
 
 # Add folder Path of your resume
 originalResumePath = "resume.pdf"
@@ -152,7 +153,7 @@ def randomText():
 
 def LoadNaukri(headless):
     """Open Chrome to load Naukri.com"""
-    options = webdriver.ChromeOptions()
+    options = Options()
     options.add_argument("--disable-notifications")
     options.add_argument("--start-maximized")  # ("--kiosk") for MAC
     options.add_argument("--disable-popups")
@@ -384,7 +385,7 @@ def main():
     log_msg("-----Naukri.py Script Run Begin-----")
     driver = None
     try:
-        status, driver = naukriLogin()
+        status, driver = naukriLogin(True)
         if status:
             UpdateProfile(driver)
             if os.path.exists(originalResumePath):
