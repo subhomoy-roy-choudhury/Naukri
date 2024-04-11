@@ -23,14 +23,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager as CM
 
 # Add folder Path of your resume
-originalResumePath = "original_resume.pdf"
+originalResumePath = "resume.pdf"
 # Add Path where modified resume should be saved
 modifiedResumePath = "modified_resume.pdf"
 
 # Update your naukri username and password here before running
-username = "Type Your email ID Here"
-password = "Type Your Password Here"
-mob = "1234567890"  # Type your mobile number here
+username = os.environ.get("NAUKRI_USERNAME")
+password = os.environ.get("NAUKRI_PASSWORD")
+mob = os.environ.get("MOBILE_NUMBER")
 
 # False if you dont want to add Random HIDDEN chars to your resume
 updatePDF = True
@@ -231,7 +231,8 @@ def naukriLogin(headless=False):
 
     except Exception as e:
         catch(e)
-    return (status, driver)
+    # return (status, driver)
+    return {True, driver}
 
 
 def UpdateProfile(driver):
@@ -320,9 +321,9 @@ def UpdateResume():
         for pageNum in range(pagecount - 1):
             output.addPage(existing_pdf.get_page_number(pageNum))
 
-        page = existing_pdf.get_page_number(pagecount - 1)
-        page.mergePage(new_pdf.get_page_number(0))
-        output.addPage(page)
+        last_page = existing_pdf.pages[pagecount - 1]
+        last_page.merge_page(new_pdf.pages[0])
+        output.add_page(last_page)
         # save the new resume file
         with open(modifiedResumePath, "wb") as outputStream:
             output.write(outputStream)
@@ -405,4 +406,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try :
+        main()
+    except Exception as e:
+        pass

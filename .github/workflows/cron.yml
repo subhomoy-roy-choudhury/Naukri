@@ -1,0 +1,45 @@
+name: Run Daily Naukri Profile Update Script
+
+on:
+  push:
+    branches:
+      - development
+  schedule:
+    - cron: "0 * * * *" # Runs every hour, change this to your preferred schedule
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: development
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install Selenium and WebDriver
+        run: |
+          pip install selenium
+          sudo apt-get update
+          sudo apt-get install -y chromium-chromedriver
+
+      - name: Run Python Script
+        env:
+          NAUKRI_USERNAME: ${{ secrets.NAUKRI_USERNAME }}
+          NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
+          MOBILE_NUMBER: ${{ secrets.MOBILE_NUMBER }}
+        run: |
+          python naukri.py
+
+      - name: Commit and Push if Resume Updated
+        run: |
+            git config --global user.email "subhomoyrchoudhury@gmail.com"
+            git config --global user.name "ai-assistant"
+            git add modified_resume.pdf
+            git commit -m "🔄 Update resume via cron job" || exit 0
+            git push
