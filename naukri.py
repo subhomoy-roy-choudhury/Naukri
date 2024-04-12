@@ -221,6 +221,7 @@ def naukriLogin(headless=True):
                 GetElement(driver, skip_locator, "XPATH").click()
 
             # CheckPoint to verify login
+            print(driver.title, driver.current_url)
             if WaitTillElementPresent(driver, "ff-inventory", locator="ID", timeout=40):
                 CheckPoint = GetElement(driver, "ff-inventory", locator="ID")
                 if CheckPoint:
