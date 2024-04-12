@@ -222,6 +222,7 @@ def naukriLogin(headless=True):
 
             # CheckPoint to verify login
             print(driver.title, driver.current_url)
+            driver.save_screenshot("image.png")
             if WaitTillElementPresent(driver, "ff-inventory", locator="ID", timeout=40):
                 CheckPoint = GetElement(driver, "ff-inventory", locator="ID")
                 if CheckPoint:
