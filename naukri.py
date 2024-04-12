@@ -154,13 +154,17 @@ def randomText():
 def LoadNaukri(headless):
     """Open Chrome to load Naukri.com"""
     options = Options()
-    options.add_argument("--disable-notifications")
-    options.add_argument("--start-maximized")  # ("--kiosk") for MAC
-    options.add_argument("--disable-popups")
+    options.add_argument("--start-maximized")
     options.add_argument("--disable-gpu")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("--disable-infobars")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option('useAutomationExtension', False)
     if headless:
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("headless")
+        options.add_argument("--headless")
+        options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
 
     # updated to use ChromeDriverManager to match correct chromedriver automatically
     driver = None
@@ -175,7 +179,7 @@ def LoadNaukri(headless):
     return driver
 
 
-def naukriLogin(headless=False):
+def naukriLogin(headless=True):
     """Open Chrome browser and Login to Naukri.com"""
     status = False
     driver = None
@@ -385,7 +389,7 @@ def main():
     log_msg("-----Naukri.py Script Run Begin-----")
     driver = None
     try:
-        status, driver = naukriLogin(True)
+        status, driver = naukriLogin()
         if status:
             UpdateProfile(driver)
             if os.path.exists(originalResumePath):
