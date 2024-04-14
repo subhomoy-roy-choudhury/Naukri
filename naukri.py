@@ -174,7 +174,7 @@ def LoadNaukri(headless):
     driver = None
     try:
         # driver = webdriver.Chrome(options, service=ChromeService(CM().install()))
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()))
+        driver = webdriver.Chrome(options, service=ChromeService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()))
     except:
         driver = webdriver.Chrome(options)
     log_msg("Google Chrome Launched!")
