@@ -154,7 +154,8 @@ def randomText():
 def LoadNaukri(headless):
     """Open Chrome to load Naukri.com"""
     options = Options()
-    options.add_argument("--start-maximized")
+    # options.add_argument("--start-maximized")
+    options.add_argument("--kiosk")
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_argument("--disable-infobars")
