@@ -20,8 +20,9 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager as CM
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
+from webdriver_manager.core.os_manager import ChromeType
 
 # Add folder Path of your resume
 originalResumePath = "resume.pdf"
@@ -153,7 +154,8 @@ def randomText():
 
 def LoadNaukri(headless):
     """Open Chrome to load Naukri.com"""
-    options = Options()
+    # options = Options()
+    options = webdriver.ChromeOptions()
     # options.add_argument("--start-maximized")
     options.add_argument("--kiosk")
     options.add_argument("--disable-gpu")
@@ -170,7 +172,8 @@ def LoadNaukri(headless):
     # updated to use ChromeDriverManager to match correct chromedriver automatically
     driver = None
     try:
-        driver = webdriver.Chrome(options, service=ChromeService(CM().install()))
+        # driver = webdriver.Chrome(options, service=ChromeService(CM().install()))
+        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()))
     except:
         driver = webdriver.Chrome(options)
     log_msg("Google Chrome Launched!")
