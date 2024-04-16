@@ -160,11 +160,11 @@ def LoadNaukri(headless):
     options.add_argument("--window-size=1200,1200")
     options.add_argument("--ignore-certificate-errors")
     # options.add_argument("--kiosk")
-    # options.add_argument("--disable-gpu")
-    # options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-blink-features=AutomationControlled")
     # options.add_argument("--disable-infobars")
-    # options.add_argument("--no-sandbox")
-    # options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     # options.add_experimental_option("excludeSwitches", ["enable-automation"])
     # options.add_experimental_option('useAutomationExtension', False)
     if headless:
@@ -185,7 +185,7 @@ def LoadNaukri(headless):
     return driver
 
 
-def naukriLogin(headless=True):
+def naukriLogin(headless=False):
     """Open Chrome browser and Login to Naukri.com"""
     status = False
     driver = None
