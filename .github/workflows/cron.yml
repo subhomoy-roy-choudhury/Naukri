@@ -22,15 +22,16 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Install dependencies and WebDriver
-        run: |
-          # Install your dependencies here, if any
-          pip install -r requirements.txt
-          sudo apt-get update
-          # sudo apt-get install -y chromium-chromedriver
-          set -ex
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt install ./google-chrome-stable_current_amd64.deb
+      - name: Installing package list
+        run: apt list --installed    
+      - name: Removing previous chrome instances on runner 
+        run: sudo apt purge google-chrome-stable  
+        
+        # Need to fetch reqs if needed
+      - name: Installing all necessary packages
+        run: pip install -r requirements.txt
+      - name: Install xvfb
+        run: sudo apt-get install xvfb
 
       - name: Run Python Script
         env:
