@@ -185,7 +185,7 @@ def LoadNaukri(headless):
     return driver
 
 
-def naukriLogin(headless=False):
+def naukriLogin(headless=True):
     """Open Chrome browser and Login to Naukri.com"""
     status = False
     driver = None
